@@ -259,9 +259,16 @@ void Observer::operate() {
         if (sonarDistance >= 1 && sonarDistance <= 10 && !move_back_flg){
             state = ST_challenge_L;
             stateMachine->sendTrigger(EVT_slalom_reached);
+
             locX = 0; //初期化 sano_t
-            locY = 0; //初期化 sano_t
+            locY = 0; //初期化 sano_t 
             distance = 0;//初期化 sano_t
+            prevAngL =0; //初期化 sano_t
+            prevAngR =0; //初期化 sano_t
+            leftMotor->reset(); //初期化 sano_t
+            rightMotor->reset(); //初期化 sano_t
+            azimuth = 0; //初期化 sano_t
+
             stateMachine->sendTrigger(EVT_slalom_reached_af);//sano_t
             armMotor->setPWM(30);
             move_back_flg = true;
@@ -351,21 +358,21 @@ void Observer::operate() {
             challenge_stepNo = 121;
         }else if(challenge_stepNo == 121){
             //角度が-45度になったら、停止、直進
-            if(getDegree()<-45){
+            if(getDegree()<-48){
                 stateMachine->sendTrigger(EVT_pause);
                 stateMachine->sendTrigger(EVT_go_straight);
                 challenge_stepNo = 122;
             }
         }else if(challenge_stepNo == 122){
-            if(own_abs(prevDisX-locX)>120){
-                //進行方向に対して横軸に距離10を進んだら、角度を0度に戻す
+            if(own_abs(prevDisX-locX)>110){
+                //進行方向に対して横軸に距離進んだら、角度を0度に戻す
                 stateMachine->sendTrigger(EVT_pause);
                 stateMachine->sendTrigger(EVT_right_turn);
                 challenge_stepNo = 123;
             }
         }else if(challenge_stepNo == 123){
-            if(getDegree()>prevDegree){
-                //進行方向に対して横軸に進んだら、角度を4度に戻す
+            if(getDegree()>prevDegree+1){
+                //進行方向に対して横軸に進んだら、角度を戻す
                 stateMachine->sendTrigger(EVT_pause);
                 stateMachine->sendTrigger(EVT_go_straight);
                 challenge_stepNo = 4;
@@ -403,14 +410,16 @@ void Observer::operate() {
             printf(",２つ目の障害物に向かって前進する\n");
             stateMachine->sendTrigger(EVT_obstcl_infront);
         // ２つ目の障害物に接近したら向きを変える
-        }else if (challenge_stepNo == 4 && check_sonar(0,5)){
-//        }else if (challenge_stepNo == 4 && locY>1000){
-            printf(",２つ目の障害物に接近したら向きを変える\n");
+//        }else if (challenge_stepNo == 4 && check_sonar(0,5)){
+        }else if (challenge_stepNo == 4 && (locY - prevDisY > 560 || check_sonar(0,5))){
+            printf(",２つ目の障害物に接近したら向きを変える２\n");
             stateMachine->sendTrigger(EVT_obstcl_reached);
             prevRgbSum = curRgbSum;
+            prevDegree=curDegree;
             line_over_flg = false;
         // 視界が晴れたら左上に前進する
-        }else if(challenge_stepNo == 5 && check_sonar(20,255)){
+        //}else if(challenge_stepNo == 5 && check_sonar(40,255)){
+        }else if(challenge_stepNo == 5 && (check_sonar(50,255)|| own_abs(curDegree-prevDegree)>55)){ //sano_t
             printf(",視界が晴れたところで前進する");
             stateMachine->sendTrigger(EVT_obstcl_avoidable);
             prevRgbSum = curRgbSum;
@@ -419,20 +428,25 @@ void Observer::operate() {
         }else if (challenge_stepNo == 6 && !line_over_flg){
             if (curRgbSum < 100) {
                 prevRgbSum = curRgbSum;
+                prevDisY=locY;//sano_t
             }
             //if(prevRgbSum < 100 && curRgbSum > 150){
             if(prevRgbSum < 100 && curRgbSum > 120){
                 printf(",黒ラインを超えたら向きを調整し障害物に接近する\n");
                 stateMachine->sendTrigger(EVT_obstcl_angle);
+                prevDegree=curDegree;//sano_t
                 line_over_flg = true;
             }
         // ３つ目の障害物に接近したら後退して調整する
-        }else if (challenge_stepNo == 7 && check_sonar(0,5)){
+//        }else if (challenge_stepNo == 7 && check_sonar(0,5)){
+        }else if (challenge_stepNo == 7 && own_abs(prevDegree-curDegree)>55){
                 printf(",３つ目の障害物に接近したら後退して調整する\n");
                 stateMachine->sendTrigger(EVT_obstcl_reached);
                 line_over_flg = true;
+                prevDegree = curDegree;
         // 視界が晴れたら左下に前進する
-        }else if (challenge_stepNo == 8 && check_sonar(20,255)){
+//        }else if (challenge_stepNo == 8 && check_sonar(20,255)){
+        }else if (challenge_stepNo == 8){
                 printf(",視界が晴れたら左下に前進する\n");
                 stateMachine->sendTrigger(EVT_obstcl_avoidable);
                 prevRgbSum = curRgbSum;
@@ -539,7 +553,9 @@ bool Observer::check_sonar(void) {
 }
 
 bool Observer::check_sonar(int16_t sonar_alert_dist_from, int16_t sonar_alert_dist_to) {
-    int32_t distance = sonarSensor->getDistance();
+    //int32_t distance = sonarSensor->getDistance(); //sano_t 
+    int16_t distance = sonarSensor->getDistance(); //sano_t 
+    printf("チェックソナーの中=%d\n",distance);
     //printf(",distance2=%d, sonar_alert_dist_from=%d, sonar_alert_dist_to=%d\n",distance, sonar_alert_dist_from, sonar_alert_dist_to );
     if (distance >= sonar_alert_dist_from && distance <= sonar_alert_dist_to) {
         return true; // obstacle detected - alert

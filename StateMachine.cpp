@@ -159,13 +159,13 @@ void StateMachine::sendTrigger(uint8_t event) {
                     challengeRunner->rest();
                     break;
                 case EVT_left_turn: //sano_t
-                    challengeRunner->setPwmLR(-5,5,Mode_speed_constant,1);
+                    challengeRunner->setPwmLR(-10,10,Mode_speed_constant,1);
                     break;
                 case EVT_go_straight: //sano_t
-                    challengeRunner->setPwmLR(20,20,Mode_speed_constant,1);
+                    challengeRunner->setPwmLR(30,30,Mode_speed_constant,1);
                     break;
                 case EVT_right_turn: //sano_t
-                    challengeRunner->setPwmLR(5,-5,Mode_speed_constant,1);
+                    challengeRunner->setPwmLR(10,-10,Mode_speed_constant,1);
                     break;
                  case EVT_obstcl_angle:
                     if (challenge_stepNo == 2){
@@ -174,7 +174,9 @@ void StateMachine::sendTrigger(uint8_t event) {
                         challenge_stepNo += 1;
                     }else if(challenge_stepNo == 6){
                         challengeRunner->rest();
-                        challengeRunner->setPwmLR(10,15,Mode_speed_decreaseL,90);
+                        //challengeRunner->setPwmLR(1,15,Mode_speed_decreaseL,90);
+                        //sano_t
+                        challengeRunner->setPwmLR(0,15,Mode_speed_decreaseL,90);
                         challenge_stepNo += 1;
                     }else if(challenge_stepNo == 9){
                         challengeRunner->rest();
@@ -207,17 +209,24 @@ void StateMachine::sendTrigger(uint8_t event) {
                         challenge_stepNo += 1;
                     }else if(challenge_stepNo == 4){
                         challengeRunner->rest();
-                        challengeRunner->setPwmLR(-15,-15,Mode_speed_constant,1);
-                        clock->sleep(300);
+                        //sano_t 削除
+                        //challengeRunner->setPwmLR(-15,-15,Mode_speed_constant,1);
+                        //clock->sleep(300);
                         challengeRunner->setPwmLR(15,-13,Mode_speed_constant,1);
                         challenge_stepNo += 1;
                     }else if(challenge_stepNo == 7){
                         challengeRunner->rest();
-                        challengeRunner->setPwmLR(-15,10,Mode_speed_constant,1);
-                        clock->sleep(500);
+                        //challengeRunner->setPwmLR(-15,10,Mode_speed_constant,1);
+                        //clock->sleep(500);
+                        printf("切り替わり１\n");
+                        //sano_t
+                        challengeRunner->setPwmLR(10,10,Mode_speed_constant,1);
+                        clock->sleep(250);
+                        printf("切り替わり２\n");
                         //challengeRunner->setPwmLR(-12,15,Mode_speed_constant,1);
-                        challengeRunner->setPwmLR(-10,15,Mode_speed_constant,1);
-                        clock->sleep(500);
+                        challengeRunner->setPwmLR(3,15,Mode_speed_constant,1);
+                        clock->sleep(1000);
+                        printf("切り替わり３\n");
                         challenge_stepNo += 1;
                     }else if(challenge_stepNo == 11){
                         challengeRunner->rest();
@@ -236,7 +245,7 @@ void StateMachine::sendTrigger(uint8_t event) {
                         challenge_stepNo += 1;
                     }else if(challenge_stepNo == 8){
                         challengeRunner->rest();
-                        challengeRunner->setPwmLR(20,28,Mode_speed_constant,1);
+                        challengeRunner->setPwmLR(10,28,Mode_speed_constant,1);
                         challenge_stepNo += 1;
                     }else if(challenge_stepNo == 12){
                         challengeRunner->rest();
