@@ -83,8 +83,7 @@ using namespace ev3api;
 #define ST_blind        2
 #define ST_stopping     3
 #define ST_end          4
-#define ST_challenge_L  5
-#define ST_challenge_R  6
+#define ST_challenge    5
 
 #define ST_NAME_LEN     20  // maximum number of characters for a machine state name
 const char stateName[][ST_NAME_LEN] = {
@@ -93,8 +92,7 @@ const char stateName[][ST_NAME_LEN] = {
     "ST_blind",
     "ST_stopping",
     "ST_end",
-    "ST_challenge_L",
-    "ST_challenge_R"
+    "ST_challenge"
 };
 
 // event
@@ -115,22 +113,9 @@ const char stateName[][ST_NAME_LEN] = {
 #define EVT_tilt            14
 
 #define EVT_slalom_reached  15
-#define EVT_slalom_On       16
-#define EVT_slalom_Off      17
-#define EVT_obstcl_angle    18
-#define EVT_obstcl_infront  19
-#define EVT_obstcl_reached  20
-#define EVT_obstcl_avoidable 21
-#define EVT_slalom_reached_af   23  //sano_t
-#define EVT_right_curve     24  //sano_t
-#define EVT_left_curve      25  //sano_t
-#define EVT_right_curve_rev 26  //sano_t
-#define EVT_left_curve_rev  27  //sano_t
-#define EVT_pause           28  //sano_t
-#define EVT_left_turn       29  //sano_t
-#define EVT_go_straight     30  //sano_t
-#define EVT_right_turn      31  //sano_t
-#define EVT_NAME_LEN        22  // maximum number of characters for an event name
+#define EVT_slalom_on       18
+
+#define EVT_NAME_LEN        20  // maximum number of characters for an event name
 const char eventName[][EVT_NAME_LEN] = {
     "EVT_cmdStart_L",
     "EVT_cmdStart_R",
@@ -148,15 +133,10 @@ const char eventName[][EVT_NAME_LEN] = {
     "EVT_dist_reached",
     "EVT_tilt",
     "EVT_slalom_reached",
-    "EVT_slalom_On",
-    "EVT_slalom_Off",
-    "EVT_obstcl_angle",
-    "EVT_obstcl_infront",
-    "EVT_obstcl_reached",
-    "EVT_obstcl_avoidable"
+    "EVT_slalom_On"
 };
 
-// pwmMode
+// pwmSetMode
 #define Mode_speed_constant     1
 #define Mode_speed_increaseL    2
 #define Mode_speed_decreaseL    3
@@ -172,7 +152,7 @@ extern rgb_raw_t g_rgb;
 extern hsv_raw_t g_hsv;
 extern int16_t g_grayScale, g_grayScaleBlueless;
 extern int16_t g_angle, g_anglerVelocity;
-extern int8_t challenge_stepNo;
+extern int16_t g_challenge_stepNo; //sano
 
 extern Clock*       clock;
 extern uint8_t      state;

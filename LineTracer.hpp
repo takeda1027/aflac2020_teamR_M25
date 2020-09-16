@@ -14,9 +14,8 @@
 class LineTracer : public Navigator {
 private:
     int32_t motor_ang_l, motor_ang_r;
-    //bool    frozen; //sano_t
 protected:
-    bool    frozen; //sano_t
+    bool    frozen;
 public:
     LineTracer();
     LineTracer(Motor* lm, Motor* rm, Motor* tm);
