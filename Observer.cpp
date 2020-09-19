@@ -14,9 +14,7 @@ rgb_raw_t g_rgb;
 hsv_raw_t g_hsv;
 int16_t g_grayScale, g_grayScaleBlueless;
 // global variables to gyro sensor output from Observer to  Navigator and its sub-classes
-int16_t g_angle, g_anglerVelocity;
-int16_t g_challenge_stepNo;
-int16_t g_color_brightness;
+int16_t g_angle, g_anglerVelocity, g_challenge_stepNo, g_color_brightness;
 
 
 Observer::Observer(Motor* lm, Motor* rm, Motor* am, Motor* tm, TouchSensor* ts, SonarSensor* ss, GyroSensor* gs, ColorSensor* cs) {
