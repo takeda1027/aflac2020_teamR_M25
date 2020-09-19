@@ -84,9 +84,8 @@ int16_t PIDcalculator::compute(int16_t sensor, int16_t target) {
         traceCnt = 0;
         char buf[128];
         snprintf(buf, sizeof(buf), "p = %lf, i = %lf, d = %lf", p, i, d);
-        _debug(syslog(LOG_NOTICE, "%08u, PIDcalculator::compute(): sensor = %d, target = %d, d0 = %d, d1 = %d +", 0, sensor, target, diff[0], diff[1]));
-        _debug(syslog(LOG_NOTICE, "%08u, PIDcalculator::compute(): sensor = %d, target = %d, %s", 0, sensor, target, buf));
-    }
+        _debug(syslog(LOG_NOTICE, "%08u, PIDcalculator::compute(): sensor = %d, target = %d, d0 = %d, d1 = %d +", clock->now(), sensor, target, diff[0], diff[1]));
+        _debug(syslog(LOG_NOTICE, "%08u, PIDcalculator::compute(): sensor = %d, target = %d, %s", clock->now(), sensor, target, buf));    }
     */
     return math_limit(p + i + d, minimum, maximum);
 }

@@ -26,7 +26,12 @@ void LineTracer::haveControl() {
 void LineTracer::operate() {
     if (frozen) {
         forward = turn = 0; /* 障害物を検知したら停止 */
-    } else {
+
+    }else if(cntl_p_flg){
+        turn = calcPropP(); /* 比例制御*/
+        forward = speed;
+
+    }else {
         forward = speed; //前進命令
         /*
         // on-off control
@@ -66,6 +71,10 @@ void LineTracer::operate() {
     }
 }
 
+int8_t LineTracer::getSpeed() {
+    return speed;
+}
+
 void LineTracer::setSpeed(int8_t s) {
     speed = s;
 }
@@ -76,6 +85,19 @@ void LineTracer::freeze() {
 
 void LineTracer::unfreeze() {
     frozen = false;
+}
+
+void LineTracer::setCntlP(bool p) {
+    cntl_p_flg = p;
+}
+
+float LineTracer::calcPropP() {
+  const float Kp = 0.83;
+  const int target = 18;
+  const int bias = 0;
+  
+  int diff = g_color_brightness - target; 
+  return (Kp * diff + bias);
 }
 
 LineTracer::~LineTracer() {

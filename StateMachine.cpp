@@ -73,8 +73,8 @@ void StateMachine::sendTrigger(uint8_t event) {
                     lineTracer->unfreeze();
                     observer->unfreeze();
                     syslog(LOG_NOTICE, "%08u, Departed", clock->now());
-                    observer->notifyOfDistance(700); // switch to ST_Blind after 700
-                   break;
+                    observer->notifyOfDistance(600); // switch to ST_Blind after 600
+                    break;
                 default:
                     break;
             }
@@ -85,29 +85,36 @@ void StateMachine::sendTrigger(uint8_t event) {
                     state = ST_end;
                     wakeupMain();
                     break;
-                case EVT_sonar_On:
-                case EVT_sonar_Off:
-                    break;
                 case EVT_dist_reached:
                     state = ST_blind;
                     blindRunner->haveControl();
                     break;
                 case EVT_bl2bk:
                 case EVT_bk2bl:
-                    /*
-                    // stop at the start of blue line
-                    observer->freeze();
-                    lineTracer->freeze();
-                    //clock->sleep() seems to be still taking milisec parm
-                    clock->sleep(5000); // wait a little
-                    lineTracer->unfreeze();
-                    observer->unfreeze();
-                    */
+                    break;
+                case EVT_sonar_On:
+                    break;
+                case EVT_sonar_Off:
                     break;
                 case EVT_cmdStop:
                     state = ST_stopping;
                     observer->notifyOfDistance(FINAL_APPROACH_LEN);
                     lineTracer->haveControl();
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case ST_blind:
+            switch (event) {
+                case EVT_dist_reached:
+                    state = ST_tracing;
+                    lineTracer->haveControl();
+                    break;
+                // case EVT_tilt: // Ignore EVT_TILT as SPEED_BLIND -> SPEED_SLOW may generate EVT_TILT
+                case EVT_cmdStop:
+                    state = ST_end;
+                    wakeupMain();
                     break;
                 default:
                     break;
@@ -133,16 +140,33 @@ void StateMachine::sendTrigger(uint8_t event) {
                     //armMotor->setPWM(80);
                     //++challenge_stepNo;
                     break;
-                case EVT_slalom_on:
+                case EVT_slalom_challenge:
                     challengeRunner->rest();
                     challengeRunner->runChallenge();
                     //++challenge_stepNo;
                     break;
+                case EVT_block_challenge:
+                    //challengeRunner->rest();
+                    challengeRunner->runChallenge();
+                    break;
+                case EVT_line_on_p_cntl:
+                    lineTracer->haveControl();
+                    lineTracer->setSpeed(30);
+                    lineTracer->setCntlP(true);
+                    break;
+                case EVT_line_on_pid_cntl:
+                    lineTracer->haveControl();
+                    lineTracer->setSpeed(30);
+                    lineTracer->setCntlP(false);
+                    break;
+                case EVT_block_area_in:
+                    challengeRunner->haveControl();
+                    //challengeRunner->rest();
+                    challengeRunner->runChallenge();
+                    break;
                 default:
                     break;
             }
-            break;
-        case ST_end:
             break;
         default:
             break;

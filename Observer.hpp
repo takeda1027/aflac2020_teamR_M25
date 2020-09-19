@@ -9,6 +9,7 @@
 #define Observer_hpp
 
 #include "aflac_common.hpp"
+#include "utility.hpp"
 
 #define OLT_SKIP_PERIOD    1000 * 1000 // period to skip outlier test in miliseconds
 #define OLT_INIT_PERIOD    3000 * 1000 // period before starting outlier test in miliseconds
@@ -32,8 +33,9 @@ private:
     GyroSensor*     gyroSensor;
     ColorSensor*    colorSensor;
     double distance, azimuth, locX, locY;
-    int8_t process_count;
-    int16_t traceCnt, prevGS, curRgbSum, prevRgbSum, curAngle, prevAngle, curDegree, prevDegree,prevDis,prevDisX,prevDisY;
+    double integD, integDL, integDR; // temp
+    int8_t process_count,roots_no;
+    int16_t traceCnt, prevGS, curRgbSum, prevRgbSum, curAngle, prevAngle, curDegree, prevDegree,prevDis,prevDisX,prevDisY,cntDegree,turnDegree;
     int32_t prevAngL, prevAngR, notifyDistance, gsDiff, timeDiff, sonarDistance;
     uint64_t curTime, prevTime;
     bool touch_flag, sonar_flag, backButton_flag, lost_flag, frozen, blue_flag, blue2_flg, slalom_flg, line_over_flg, move_back_flg,garage_flg;
@@ -52,7 +54,8 @@ private:
     bool check_backButton(void);
     bool check_lost(void);
     bool check_tilt(void);
-
+    int16_t getTurnDgree(int16_t prev_x,int16_t x);
+    
 protected:
 public:
     Observer();

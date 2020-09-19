@@ -9,28 +9,11 @@
 #ifndef utility_hpp
 #define utility_hpp
 
-#define DEBUG
-
-#ifdef DEBUG
-#define _debug(x) (x)
-#else
-#define _debug(x)
-#endif
-
-//#include <cinttypes>
-#include "ColorSensor.h"
-using namespace ev3api;
-
 #define NOT_OUTLIER          0
 #define POS_OUTLIER          1
 #define NEG_OUTLIER          2
 
-typedef struct {
-    uint16_t h; // Hue
-    uint16_t s; // Saturation
-    uint16_t v; // Value of brightness
-    
-} hsv_raw_t;
+#include "aflac_common.hpp"
 
 template<typename T, int CAPACITY> class MovingAverage {
 private:

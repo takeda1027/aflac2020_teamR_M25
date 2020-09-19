@@ -16,14 +16,18 @@ private:
     int32_t motor_ang_l, motor_ang_r;
 protected:
     bool    frozen;
+    bool    cntl_p_flg;
 public:
     LineTracer();
     LineTracer(Motor* lm, Motor* rm, Motor* tm);
     void haveControl();
     void operate(); // method to invoke from the cyclic handler
+    int8_t getSpeed();
     void setSpeed(int8_t s);
     void freeze();
     void unfreeze();
+    float calcPropP();
+    void setCntlP(bool p);
     ~LineTracer();
 };
 

@@ -9,6 +9,7 @@
 #define Navigator_hpp
 
 #include "aflac_common.hpp"
+#include "utility.hpp"
 
 class Navigator {
 private:
