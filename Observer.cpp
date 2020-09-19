@@ -15,7 +15,8 @@ hsv_raw_t g_hsv;
 int16_t g_grayScale, g_grayScaleBlueless;
 // global variables to gyro sensor output from Observer to  Navigator and its sub-classes
 int16_t g_angle, g_anglerVelocity;
-int16_t g_challenge_stepNo,g_color_brightness;
+int16_t g_challenge_stepNo;
+int16_t g_color_brightness;
 
 
 Observer::Observer(Motor* lm, Motor* rm, Motor* am, Motor* tm, TouchSensor* ts, SonarSensor* ss, GyroSensor* gs, ColorSensor* cs) {
@@ -296,12 +297,12 @@ void Observer::operate() {
     //スラローム専用処理
     if(slalom_flg && !garage_flg){
         //ログ出力
-        // if (g_challenge_stepNo >= 150 && g_challenge_stepNo <= 180){
+         if (g_challenge_stepNo >= 10 && g_challenge_stepNo <= 40){
         //      if (++traceCnt && traceCnt > 50) {
-        //          printf(",distance=%lf,g_angle=%d,curDegree=%d, sonarDistance=%d, g_challenge_stepNo=%d,r+g+b=%d\n",distance,g_angle,curDegree, sonarDistance,g_challenge_stepNo,curRgbSum);
+                  printf(",distance=%lf,g_angle=%d,curDegree=%d, sonarDistance=%d, g_challenge_stepNo=%d,r+g+b=%d\n",distance,g_angle,curDegree, sonarDistance,g_challenge_stepNo,curRgbSum);
         //          traceCnt = 0;
         //      }
-        // }
+         }
 
         //初期位置の特定
         if(g_challenge_stepNo == 10 && distance - prevDis > 35){
@@ -362,13 +363,13 @@ void Observer::operate() {
             g_challenge_stepNo = 21;
 
         }else if(g_challenge_stepNo == 21){
-            //角度が-4?度になったら、停止、直進
-            if(getDegree()<-55){
+            //角度が一定角度になったら、停止、直進
+            if(getDegree()<-70){
                 stateMachine->sendTrigger(EVT_slalom_challenge);
                 g_challenge_stepNo=22;
             }
         } else if(g_challenge_stepNo == 22){
-            if(own_abs(prevDisX-locX)>140){
+            if(own_abs(prevDisX-locX)>120){
                 //進行方向に対して横軸に距離進んだら、角度を0度に戻す
                 stateMachine->sendTrigger(EVT_slalom_challenge);
                 g_challenge_stepNo=30;
@@ -498,25 +499,27 @@ void Observer::operate() {
             //prevDisY = locY; // 初期化
             //prevDegree=getDegree();//初期化
         }
-    //ボーナスブロック＆ガレージ専用処理
-    }else if (garage_flg && !slalom_flg){
+    }
 
-//        if (g_challenge_stepNo >= 150 && g_challenge_stepNo <= 180){
+    //ボーナスブロック＆ガレージ専用処理
+    if (garage_flg && !slalom_flg){
+
+        if (g_challenge_stepNo >= 151 && g_challenge_stepNo <= 180){
 //             if (++traceCnt && traceCnt > 1) {
-                 printf(",distance=%lf,g_angle=%d,curDegree=%d, sonarDistance=%d, g_challenge_stepNo=%d,r+g+b=%d\n",distance,g_angle,curDegree, sonarDistance,g_challenge_stepNo,curRgbSum);
+                 printf(",garage_flg=%d,slalom_flg=%d,distance=%lf,g_angle=%d,curDegree=%d, sonarDistance=%d, g_challenge_stepNo=%d,r=%d,g=%d,b=%d\n",garage_flg,slalom_flg,distance,g_angle,curDegree, sonarDistance,g_challenge_stepNo,cur_rgb.r,cur_rgb.g,cur_rgb.b);
 //                 traceCnt = 0;
 //             }
-//        }
+        }
 
         //ガレージON後、距離が一部距離が残るようであるため、距離がリセットされたことを確認
-        if(g_challenge_stepNo == 150 && distance < 100){
+        if(g_challenge_stepNo == 150 && distance < 100 && distance > 1){
             g_challenge_stepNo = 151;
         }
 
-        else if( g_challenge_stepNo == 151 && distance > 180){
+        else if( g_challenge_stepNo == 151 && distance > 200){
             // ソナー稼働回転、方向を調整
             printf("ソナー稼働回転、方向を調整\n");
-            stateMachine->sendTrigger(EVT_block_challenge);
+            stateMachine->sendTrigger(EVT_block_challenge); //151
             g_challenge_stepNo = 160;
 
         //ソナーの値から進行方向確認
@@ -606,7 +609,7 @@ void Observer::operate() {
             //captain->decide(EVT_step); // 一旦停止
             //captain->decide(EVT_turnLeft_m15p50); // 回転開始
 
-        }else if(g_challenge_stepNo=231 && prevDegree -getAzimuth() + cntDegree > 67 + 15){
+        }else if(g_challenge_stepNo==231 && prevDegree -getAzimuth() + cntDegree > 67 + 15){
             prevDis = distance;
             stateMachine->sendTrigger(EVT_block_challenge); //231
             //captain->decide(EVT_go_30); // 物体に接近
