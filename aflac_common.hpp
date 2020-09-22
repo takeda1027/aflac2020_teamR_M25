@@ -57,16 +57,27 @@ using namespace ev3api;
 //#define P_CONST            0.4D  // PID constants determined by Ultimate Gain method
 //#define I_CONST            0.0D
 //#define D_CONST            0.0D
-#define P_CONST           0.46D  // PID constants determined by Ultimate Gain method
-#define I_CONST     0.00000013D
-#define D_CONST          0.075D
+
+
+// #define P_CONST           0.46D  // PID constants determined by Ultimate Gain method
+// #define I_CONST     0.00000013D sano_t
+// #define D_CONST          0.075D //sano_t
+#define P_CONST           0.85D
+#define I_CONST            0.0000001D
+#define D_CONST            0.5D
+//#define SPEED_NORM           50
+#define GS_TARGET            47
+
+
 #define SPEED_NORM           50
 #define SPEED_SLOW           30
 #define SPEED_RECOVER        10
 #define SPEED_BLIND          75
 #define TURN_MIN            -16  // minimum value PID calculator returns
 #define TURN_MAX             16  // maximum value PID calculator returns
-#define GS_TARGET            45
+
+
+//#define GS_TARGET            45 //sano_t
 
 #define M_2PI    (2.0 * M_PI)
 
