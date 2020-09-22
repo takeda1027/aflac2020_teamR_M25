@@ -154,7 +154,7 @@ void ChallengeRunner::runChallenge() {
         case 60:
             rest();  
             if (_LEFT == 1){
-                setPwmLR(,15,Mode_speed_decreaseL,90);
+                setPwmLR(7,15,Mode_speed_decreaseL,90);
                 clock->sleep(150);                
                 setPwmLR(0,15,Mode_speed_decreaseL,90);
             }else{
