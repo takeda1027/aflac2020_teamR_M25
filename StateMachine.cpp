@@ -131,7 +131,7 @@ void StateMachine::sendTrigger(uint8_t event) {
                     break;
             }
             break;
-        case ST_challenge:
+        case ST_slalom:
             switch (event) {
                 case EVT_slalom_reached:
                     challengeRunner->rest();
@@ -145,6 +145,12 @@ void StateMachine::sendTrigger(uint8_t event) {
                     challengeRunner->runChallenge();
                     //++challenge_stepNo;
                     break;
+                default:
+                    break;
+            }
+            break;
+        case ST_block:
+            switch (event) {
                 case EVT_block_challenge:
                     //challengeRunner->rest();
                     challengeRunner->runChallenge();

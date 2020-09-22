@@ -85,7 +85,8 @@ using namespace ev3api;
 #define ST_blind        2
 #define ST_stopping     3
 #define ST_end          4
-#define ST_challenge    5
+#define ST_slalom 5
+#define ST_block  6
 
 #define ST_NAME_LEN     20  // maximum number of characters for a machine state name
 const char stateName[][ST_NAME_LEN] = {
@@ -94,7 +95,8 @@ const char stateName[][ST_NAME_LEN] = {
     "ST_blind",
     "ST_stopping",
     "ST_end",
-    "ST_challenge"
+    "ST_slalom",
+    "ST_block"
 };
 
 // event

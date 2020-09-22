@@ -256,7 +256,7 @@ void Observer::operate() {
     // Preparation for slalom climbing
     if(blue2_flg && !slalom_flg && !garage_flg){
         if (g_challenge_stepNo == 0 && sonarDistance >= 1 && sonarDistance <= 10 && !move_back_flg){
-            state = ST_challenge;
+            state = ST_slalom;
             armMotor->setPWM(-50);
             stateMachine->sendTrigger(EVT_slalom_reached);
             g_challenge_stepNo = 1;
@@ -271,7 +271,7 @@ void Observer::operate() {
             azimuth = 0; //初期化 sano_t
 
             stateMachine->sendTrigger(EVT_slalom_reached);
-            armMotor->setPWM(80);
+            armMotor->setPWM(60);
             g_challenge_stepNo = 10;
             move_back_flg = true;
         }
@@ -296,12 +296,12 @@ void Observer::operate() {
     //スラローム専用処理
     if(slalom_flg && !garage_flg){
         //ログ出力
-        if (g_challenge_stepNo >= 60 && g_challenge_stepNo <= 110){
-             if (++traceCnt && traceCnt > 50) {
-                 printf(",distance=%lf,prevDis=%lf,g_angle=%d,curDegree=%d, sonarDistance=%d, g_challenge_stepNo=%d,r+g+b=%d\n",distance,prevDis,g_angle,curDegree, sonarDistance,g_challenge_stepNo,curRgbSum);
-                 traceCnt = 0;
-             }
-        }
+        // if (g_challenge_stepNo >= 60 && g_challenge_stepNo <= 110){
+        //      if (++traceCnt && traceCnt > 50) {
+        //          printf(",distance=%lf,prevDis=%lf,g_angle=%d,curDegree=%d, sonarDistance=%d, g_challenge_stepNo=%d,r+g+b=%d\n",distance,prevDis,g_angle,curDegree, sonarDistance,g_challenge_stepNo,curRgbSum);
+        //          traceCnt = 0;
+        //      }
+        // }
 
         //初期位置の特定
         if(g_challenge_stepNo == 10 && distance - prevDis > 35){
@@ -478,13 +478,10 @@ void Observer::operate() {
             g_challenge_stepNo = 150;
         }
 
-         if(g_angle > 6 && g_challenge_stepNo == 150){
+        // スラローム降りてフラグOff
+        if(g_angle > 6 && g_challenge_stepNo == 150){
             printf("スラロームオフ\n");
-            slalom_flg = false;
-            armMotor->setPWM(0);
-
-            //ガレージ移行初期化処理
-            printf("ガレージオン\n");
+            state = ST_block;
             garage_flg = true;
             locX = 0; //初期化
             locY = 0; //初期化 
@@ -505,12 +502,11 @@ void Observer::operate() {
 
     //ボーナスブロック＆ガレージ専用処理
     if (garage_flg && !slalom_flg){
-
         if (g_challenge_stepNo >= 151 && g_challenge_stepNo <= 180){
-//             if (++traceCnt && traceCnt > 1) {
+             if (++traceCnt && traceCnt > 30) {
                  printf(",garage_flg=%d,slalom_flg=%d,distance=%lf,g_angle=%d,curDegree=%d, sonarDistance=%d, g_challenge_stepNo=%d,r=%d,g=%d,b=%d\n",garage_flg,slalom_flg,distance,g_angle,curDegree, sonarDistance,g_challenge_stepNo,cur_rgb.r,cur_rgb.g,cur_rgb.b);
-//                 traceCnt = 0;
-//             }
+                 traceCnt = 0;
+             }
         }
 
         //ガレージON後、距離が一部距離が残るようであるため、距離がリセットされたことを確認
