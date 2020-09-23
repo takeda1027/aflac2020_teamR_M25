@@ -131,8 +131,9 @@ void Observer::operate() {
         g_grayScale = (cur_rgb.r * 77 + cur_rgb.g * 150 + cur_rgb.b * 29) / 256;
         g_grayScaleBlueless = (cur_rgb.r * 77 + cur_rgb.g * 150 + (cur_rgb.b - cur_rgb.g) * 29) / 256; // B - G cuts off blue
     }else{
-        g_grayScale = (cur_rgb.r * 77 + cur_rgb.g * 120 + cur_rgb.b * 29) / 226;
-        g_grayScaleBlueless = (cur_rgb.r * 77 + cur_rgb.g * 120 + (cur_rgb.b - cur_rgb.g) * 29) / 226; // B - G cuts off blue
+        g_grayScale = (cur_rgb.r * 200 + cur_rgb.g * 10 + cur_rgb.b * 29) / 239;
+        g_grayScaleBlueless = (cur_rgb.r * 200 + cur_rgb.g * 10 + (cur_rgb.b - cur_rgb.g) * 29) / 239; // B - G cuts off blue
+        g_color_brightness = colorSensor->getBrightness();
     }
 
     // save gyro sensor output to the global area
@@ -205,16 +206,16 @@ void Observer::operate() {
 
     if (!frozen) { // these checks are meaningless thus bypassed when frozen
         // determine if still tracing the line
-        result = check_lost();
-        if (result && !lost_flag) {
-            syslog(LOG_NOTICE, "%08u, line lost", clock->now());
-            lost_flag = true;
-            stateMachine->sendTrigger(EVT_line_lost);
-        } else if (!result && lost_flag) {
-            syslog(LOG_NOTICE, "%08u, line found", clock->now());
-            lost_flag = false;
-            stateMachine->sendTrigger(EVT_line_found);
-        }
+        // result = check_lost();
+        // if (result && !lost_flag) {
+        //     syslog(LOG_NOTICE, "%08u, line lost", clock->now());
+        //     lost_flag = true;
+        //     stateMachine->sendTrigger(EVT_line_lost);
+        // } else if (!result && lost_flag) {
+        //     syslog(LOG_NOTICE, "%08u, line found", clock->now());
+        //     lost_flag = false;
+        //     stateMachine->sendTrigger(EVT_line_found);
+        // }
 
         // temporary dirty logic to detect the second black to blue change
         int32_t ma_gs;
@@ -363,25 +364,31 @@ void Observer::operate() {
                 g_challenge_stepNo = 20;
             }        
 
-        }else if(g_challenge_stepNo == 20){
+        }else if(g_challenge_stepNo == 20 && curDegree >= -45){
             //その場で左回転
-            stateMachine->sendTrigger(EVT_slalom_challenge);
             g_challenge_stepNo = 21;
+            stateMachine->sendTrigger(EVT_slalom_challenge);//21
 
-        }else if(g_challenge_stepNo == 21){
+
+        }else if(g_challenge_stepNo == 20 && curDegree <= -45){
+            //その場で右回転
+            g_challenge_stepNo = 22;
+            stateMachine->sendTrigger(EVT_slalom_challenge);//22
+
+        }else if((g_challenge_stepNo == 21 && curDegree < -45) || (g_challenge_stepNo == 22 && curDegree > -45)){
             //角度が一定角度になったら、停止、直進
-            if(curDegree < -45 ){
-                stateMachine->sendTrigger(EVT_slalom_challenge);
-                g_challenge_stepNo = 22;
-            }
-        } else if(g_challenge_stepNo == 22){
+                g_challenge_stepNo = 23;
+                stateMachine->sendTrigger(EVT_slalom_challenge); //23
+                g_challenge_stepNo = 24;
+
+        } else if(g_challenge_stepNo == 24){
             if(own_abs(prevDisX - locX) > 120){
                 //進行方向に対して横軸に距離進んだら、角度を0度に戻す
-                stateMachine->sendTrigger(EVT_slalom_challenge);
+                stateMachine->sendTrigger(EVT_slalom_challenge); //24
                 g_challenge_stepNo = 30;
             }
         }else if(g_challenge_stepNo == 30){
-            if(curDegree > prevDegree - 3){
+            if(curDegree > prevDegree - 2){
                 //進行方向に対して横軸に進んだら、角度を戻す
                 stateMachine->sendTrigger(EVT_slalom_challenge);
                 g_challenge_stepNo = 40;
@@ -438,7 +445,7 @@ void Observer::operate() {
                 line_over_flg = true;
                 prevDegree = curDegree;
         // 視界が晴れたら左下に前進する
-        }else if (g_challenge_stepNo == 80  && own_abs(prevDegree - curDegree) > 70){
+        }else if (g_challenge_stepNo == 80  && own_abs(prevDegree - curDegree) > 65){
                 printf(",視界が晴れたら左下に前進する\n");
                 stateMachine->sendTrigger(EVT_slalom_challenge);
                 g_challenge_stepNo = 90;
@@ -465,11 +472,16 @@ void Observer::operate() {
         }else if (g_challenge_stepNo == 110 && check_sonar(0,5)){
             printf(",４つ目の障害物に接近したら向きを変える\n");
             stateMachine->sendTrigger(EVT_slalom_challenge);
-            g_challenge_stepNo = 120;
+            g_challenge_stepNo = 111;
             prevDegree = curDegree;
+        
+        //step110直後に視界が晴れる可能性を回避
+        }else if(g_challenge_stepNo == 111 && own_abs(curDegree - prevDegree) > 20){
+            g_challenge_stepNo = 120;
+        
         // 視界が晴れたら左上に前進する
 //        }else if (g_challenge_stepNo == 120 && (check_sonar(21,255) && own_abs(curDegree - prevDegree) > 51)){
-        }else if (g_challenge_stepNo == 120 &&  own_abs(curDegree - prevDegree) > 65){
+        }else if (g_challenge_stepNo == 120 &&  (check_sonar(21,255) || own_abs(curDegree - prevDegree) > 70)){
             printf(",視界が晴れたら左上に前進する\n");
             stateMachine->sendTrigger(EVT_slalom_challenge);
             g_challenge_stepNo = 130;
@@ -491,7 +503,7 @@ void Observer::operate() {
             }
             prevDegree = curDegree;
         // 直進しスラロームを降りる
-        }else if(g_challenge_stepNo == 140 && own_abs(curDegree - prevDegree) > 58 ){
+        }else if(g_challenge_stepNo == 140 && own_abs(curDegree - prevDegree) > 48 ){
             printf(",直進しスラロームを降りる\n");
             stateMachine->sendTrigger(EVT_slalom_challenge);
             armMotor->setPWM(30);
@@ -523,12 +535,12 @@ void Observer::operate() {
 
     //ボーナスブロック＆ガレージ専用処理
     if (garage_flg && !slalom_flg){
-//        if (g_challenge_stepNo >= 151 && g_challenge_stepNo <= 150){
- //            if (++traceCnt && traceCnt > 30) {
-                 printf(",garage_flg=%d,slalom_flg=%d,distance=%lf,g_angle=%d,curDegree=%d, sonarDistance=%d, g_challenge_stepNo=%d,r=%d,g=%d,b=%d\n",garage_flg,slalom_flg,distance,g_angle,curDegree, sonarDistance,g_challenge_stepNo,cur_rgb.r,cur_rgb.g,cur_rgb.b);
-//                 traceCnt = 0;
-//             }
-//        }
+       if (g_challenge_stepNo >= 151 && g_challenge_stepNo <= 300){
+            if (++traceCnt && traceCnt > 30) {
+                printf(",garage_flg=%d,slalom_flg=%d,distance=%lf,g_angle=%d,curDegree=%d, sonarDistance=%d, g_challenge_stepNo=%d,r=%d,g=%d,b=%d\n",garage_flg,slalom_flg,distance,g_angle,curDegree, sonarDistance,g_challenge_stepNo,cur_rgb.r,cur_rgb.g,cur_rgb.b);
+                traceCnt = 0;
+            }
+       }
 
         //ガレージON後、距離が一部距離が残るようであるため、距離がリセットされたことを確認
         if(g_challenge_stepNo == 150 && distance < 100 && distance > 1){
@@ -604,7 +616,7 @@ void Observer::operate() {
                 prevDegree = getAzimuth();
                 roots_no = 1;
         //赤ライン進入の続き
-        }else if(g_challenge_stepNo == 201 && getAzimuth() - prevDegree >73){
+        }else if(g_challenge_stepNo == 201 && getAzimuth() - prevDegree >93){
                 printf("赤色超えました2\n");
                 stateMachine->sendTrigger(EVT_block_challenge); //201
                 //captain->decide(EVT_go_30); // 物体に接近
@@ -629,14 +641,14 @@ void Observer::operate() {
             //captain->decide(EVT_step); // 一旦停止
             //captain->decide(EVT_turnLeft_m15p50); // 回転開始
 
-        }else if(g_challenge_stepNo==231 && prevDegree -getAzimuth() + cntDegree > 67 + 15){
+        }else if(g_challenge_stepNo==231 && prevDegree - getAzimuth() + cntDegree > 67 + 25){
             prevDis = distance;
             stateMachine->sendTrigger(EVT_block_challenge); //231
             //captain->decide(EVT_go_30); // 物体に接近
             g_challenge_stepNo = 232;
             printf("ここまで黄色エリア１ cntDegree=%d,azi=%d,sa=%d,gosa=%d\n",prevDegree,getAzimuth(),prevDegree -getAzimuth(),cntDegree);
         //ブロックの升目一つ隣の黄色ポイントで直角ターン
-        }else if(g_challenge_stepNo == 232 && distance-prevDis > 180 && cur_rgb.r + cur_rgb.g - cur_rgb.b <= 130 ){
+        }else if(g_challenge_stepNo == 232 && distance - prevDis > 180 && cur_rgb.r + cur_rgb.g - cur_rgb.b <= 130 ){
             printf("ここまで黄色エリア２\n");
             stateMachine->sendTrigger(EVT_line_on_pid_cntl); //232
             g_challenge_stepNo = 250;
@@ -691,7 +703,7 @@ void Observer::operate() {
             //黒ライン、黄色直進からのブロック到達の場合
             }else{
                 //回転角度に80度をセット
-                turnDegree = 80;
+                turnDegree = 100;
             }
         }else if(g_challenge_stepNo == 261 && cntDegree > turnDegree){
             stateMachine->sendTrigger(EVT_block_challenge); //261
@@ -699,12 +711,10 @@ void Observer::operate() {
             g_challenge_stepNo = 262;
 
         }else if(g_challenge_stepNo == 261){ //角度が条件に該当しない場合、差分を累積していく。
-
             int x= getAzimuth();
             cntDegree += getTurnDgree(prevDegree,x);
             prevDegree = x;
             printf("cntDegree=%d,prevDegree=%d,",cntDegree,prevDegree);
-
         //前方に何もない状況になったら進行
         }else if(g_challenge_stepNo == 262){
             if(check_sonar(255,255)){
@@ -717,7 +727,7 @@ void Observer::operate() {
             cntDegree += getTurnDgree(prevDegree,x);
             prevDegree = x;
 
-            if(cntDegree>=0){ //255を発見してから何度曲がるかを調整
+            if(cntDegree >= 3){ //255を発見してから何度曲がるかを調整
                 stateMachine->sendTrigger(EVT_block_challenge); //263
                 //captain->decide(EVT_go_b3); // ガレージラインへ
                 g_challenge_stepNo = 270;
@@ -734,51 +744,49 @@ void Observer::operate() {
         //緑を見つけたら、減速
         else if(g_challenge_stepNo == 280 && cur_rgb.r <= 13 && cur_rgb.b <= 50 && cur_rgb.g > 60){ 
             //stateMachine->sendTrigger(EVT_block_challenge); //280
-            //captain->decide(EVT_go_slowly);
             g_challenge_stepNo = 281;
+ 
+        //一度白を通過
+        }else if(g_challenge_stepNo == 281 && curRgbSum > 300){
+            g_challenge_stepNo = 282;
 
         //緑をみつけたらカーブ開始
-        }else if(g_challenge_stepNo == 281 && cur_rgb.r <= 13 && cur_rgb.b <= 50 && cur_rgb.g > 60 ){
-            stateMachine->sendTrigger(EVT_block_challenge); //281
-            g_challenge_stepNo = 282;
-            //captain->decide(EVT_turnRight_slowly); 
-
-        }else if(g_challenge_stepNo >= 280 && g_challenge_stepNo <= 281 && cur_rgb.r + cur_rgb.g <= 50){  //青または黒をみつけたら、完全にターン)
-            g_challenge_stepNo = 282;
+        }else if(g_challenge_stepNo == 282 && cur_rgb.r <= 13 && cur_rgb.b <= 50 && cur_rgb.g > 60 ){
             stateMachine->sendTrigger(EVT_block_challenge); //282
-            //captain->decide(EVT_step); // 一旦停止
-            //captain->decide(EVT_turnb3); // ここでターン
             g_challenge_stepNo = 283;
-            clock->sleep(500);
+        
+        //一度白を通過
+        }else if(g_challenge_stepNo == 283 && curRgbSum > 300){
+            g_challenge_stepNo = 284;
 
-        }else if(g_challenge_stepNo == 283){
-            if(check_sonar(35,250)){ // ガレージの奥の距離を捉えたら直進
-                prevDegree = getAzimuth();
-                cntDegree = 0;
-                g_challenge_stepNo = 284;
-            }
-        }else if(g_challenge_stepNo == 284){
+        }else if(g_challenge_stepNo == 284 && cur_rgb.r + cur_rgb.g <= 150){  //青または黒をみつけたら、完全にターン)
+            g_challenge_stepNo = 284;
+            stateMachine->sendTrigger(EVT_block_challenge); //284
+            g_challenge_stepNo = 285;
+            clock->sleep(500);
+        // ガレージの奥の距離を捉えたら直進
+        }else if(g_challenge_stepNo == 285 && check_sonar(35,250)){
+            prevDegree = getAzimuth();
+            cntDegree = 0;
+            g_challenge_stepNo = 286;
+        }else if(g_challenge_stepNo == 286){
             int x = getAzimuth();
             cntDegree += getTurnDgree(prevDegree,x);
             prevDegree=x;
             printf("cntDegree=%d,",cntDegree);
 
-            if(cntDegree > 7){
-                stateMachine->sendTrigger(EVT_block_challenge); //284
+            if(cntDegree > 10){
+                stateMachine->sendTrigger(EVT_block_challenge); //286
                 //captain->decide(EVT_go_slowly);
                 g_challenge_stepNo = 290;
             }
 
-        }else if(g_challenge_stepNo == 290 && sonarSensor->getDistance() < 20){
+        }else if(g_challenge_stepNo == 290 && check_sonar(0,20)){
                 stateMachine->sendTrigger(EVT_block_challenge); //290
                 //captain->decide(EVT_stop);
                 garage_flg = false;
         }
 
-        //比例制御中は、以下を取得する。
-        if(g_challenge_stepNo == 120){
-            g_color_brightness = colorSensor->getBrightness();
-        }
 
         // if (g_challenge_stepNo >=10 && g_challenge_stepNo <=290){
         //     printf("dis=%d,distance=%d,prev_dis=%d,deg=%d,prev_deg=%d,r=%03u, g=%03u, b=%03u,state=%d,\n",sonarSensor->getDistance(),distance,prevDis,getAzimuth(),prevDegree,g_rgb.r, g_rgb.g, g_rgb.b,g_challenge_stepNo);//sano t

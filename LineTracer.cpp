@@ -62,13 +62,14 @@ void LineTracer::operate() {
     rightMotor->setPWM(pwm_R);
 
     // display pwm in every PERIOD_TRACE_MSG ms */
-    if (++trace_pwmLR * PERIOD_NAV_TSK >= PERIOD_TRACE_MSG) {
-        trace_pwmLR = 0;
-        _debug(syslog(LOG_NOTICE, "%08u, LineTracer::operate(): pwm_L = %d, pwm_R = %d", clock->now(), pwm_L, pwm_R));
-        /*
-        _debug(syslog(LOG_NOTICE, "%08u, LineTracer::operate(): distance = %d, azimuth = %d, x = %d, y = %d", clock->now(), observer->getDistance(), observer->getAzimuth(), observer->getLocX(), observer->getLocY()));
-        */
-    }
+    // if (++trace_pwmLR * PERIOD_NAV_TSK >= PERIOD_TRACE_MSG) {
+    //     trace_pwmLR = 0;
+    //     _debug(syslog(LOG_NOTICE, "%08u, LineTracer::operate(): pwm_L = %d, pwm_R = %d", clock->now(), pwm_L, pwm_R));
+    //     /*
+    //     _debug(syslog(LOG_NOTICE, "%08u, LineTracer::operate(): distance = %d, azimuth = %d, x = %d, y = %d", clock->now(), observer->getDistance(), observer->getAzimuth(), observer->getLocX(), observer->getLocY()));
+    //     */
+    // }
+    //printf("cntl_p_flg=%d,forward=%d, turn=%d, pwm_L = %d, pwm_R = %d\n",cntl_p_flg,forward, turn,pwm_L,pwm_R);
 }
 
 int8_t LineTracer::getSpeed() {
@@ -97,6 +98,7 @@ float LineTracer::calcPropP() {
   const int bias = 0;
   
   int diff = g_color_brightness - target; 
+  printf("ライントレース2通った g_color_brightness=%d\n",g_color_brightness);
   return (Kp * diff + bias);
 }
 
