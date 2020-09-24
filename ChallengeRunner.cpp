@@ -264,9 +264,9 @@ void ChallengeRunner::runChallenge() {
             break;
         case 210:
             if (_LEFT == 1){
-                setPwmLR(30,30,Mode_speed_constant,1);
+                setPwmLR(30,28,Mode_speed_constant,1);
             }else{
-                setPwmLR(30,30,Mode_speed_constant,1);
+                setPwmLR(28,30,Mode_speed_constant,1);
             }
             break;
         case 211:

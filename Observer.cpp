@@ -476,7 +476,7 @@ void Observer::operate() {
             prevDegree = curDegree;
         
         //step110直後に視界が晴れる可能性を回避
-        }else if(g_challenge_stepNo == 111 && own_abs(curDegree - prevDegree) > 20){
+        }else if(g_challenge_stepNo == 111 && own_abs(curDegree - prevDegree) > 40){
             g_challenge_stepNo = 120;
         
         // 視界が晴れたら左上に前進する
@@ -599,7 +599,7 @@ void Observer::operate() {
                 //captain->decide(EVT_turn_right_180); // ちょっとだけ外へずらす 
                 g_challenge_stepNo = 211;
 
-                clock->sleep(100);
+                clock->sleep(800);
                 stateMachine->sendTrigger(EVT_block_challenge); //211
                 //captain->decide(EVT_go_b3); // 物体に接近
                 g_challenge_stepNo = 212;
@@ -788,7 +788,7 @@ void Observer::operate() {
                 g_challenge_stepNo = 290;
             }
 
-        }else if(g_challenge_stepNo == 290 && check_sonar(0,20)){
+        }else if(g_challenge_stepNo == 290 && check_sonar(0,15)){
                 stateMachine->sendTrigger(EVT_block_challenge); //290
                 //captain->decide(EVT_stop);
                 garage_flg = false;
