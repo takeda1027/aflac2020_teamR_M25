@@ -44,7 +44,6 @@ Observer::Observer(Motor* lm, Motor* rm, Motor* am, Motor* tm, TouchSensor* ts, 
     
     // For Challenge Run
     line_over_flg = false;
-    blue2_flg = true;
     move_back_flg = false;
     slalom_flg = false;
     curRgbSum = 0;
@@ -127,7 +126,7 @@ void Observer::operate() {
     g_rgb = cur_rgb;
     g_hsv = cur_hsv;
     // calculate gray scale and save them to the global area
-    if(!garage_flg){ //sano
+    if(!garage_flg){
         g_grayScale = (cur_rgb.r * 77 + cur_rgb.g * 150 + cur_rgb.b * 29) / 256;
         g_grayScaleBlueless = (cur_rgb.r * 77 + cur_rgb.g * 150 + (cur_rgb.b - cur_rgb.g) * 29) / 256; // B - G cuts off blue
     }else{
@@ -251,31 +250,25 @@ void Observer::operate() {
         // }
     }
     
-// sano added
     curDegree = getDegree();
     sonarDistance = sonarSensor->getDistance();
 
-    // blue2_flg ON
-    if(cur_rgb.b - cur_rgb.r > 60 && sonarDistance < 50  && cur_rgb.b <=255 && cur_rgb.r<=255){
-        blue2_flg =true;
-    }
-
     // Preparation for slalom climbing
-    if(blue2_flg && !slalom_flg && !garage_flg){
+    if(!slalom_flg && !garage_flg){
         if (g_challenge_stepNo == 0 && sonarDistance >= 1 && sonarDistance <= 10 && !move_back_flg){
             state = ST_slalom;
             armMotor->setPWM(-50);
             stateMachine->sendTrigger(EVT_slalom_reached);
             g_challenge_stepNo = 1;
 
-            locX = 0; //初期化 sano_t
-            locY = 0; //初期化 sano_t 
-            distance = 0;//初期化 sano_t
-            prevAngL =0; //初期化 sano_t
-            prevAngR =0; //初期化 sano_t
-            leftMotor->reset(); //初期化 sano_t
-            rightMotor->reset(); //初期化 sano_t
-            azimuth = 0; //初期化 sano_t
+            locX = 0;
+            locY = 0; 
+            distance = 0;
+            prevAngL =0;
+            prevAngR =0;
+            leftMotor->reset();
+            rightMotor->reset();
+            azimuth = 0;
 
             stateMachine->sendTrigger(EVT_slalom_reached);
             armMotor->setPWM(60);
@@ -291,11 +284,11 @@ void Observer::operate() {
         if (prevAngle < -9 && curAngle >= 0){
             printf("スラロームオン\n");
             slalom_flg = true;
-            curAngle = 0;//初期化
-            prevAngle = 0;//初期化
-            prevDis = distance; //初期化
-            prevDisY = locY; // 初期化
-            prevDegree=getDegree();//初期化
+            curAngle = 0;
+            prevAngle = 0;
+            prevDis = distance;
+            prevDisY = locY;
+            prevDegree=getDegree();
             armMotor->setPWM(-100);
         }
     }
@@ -404,11 +397,6 @@ void Observer::operate() {
                 line_over_flg = false;
                 prevRgbSum = curRgbSum;
             }
-            //途中で黒が現れたら左にハンドルを切る
-            // else if(curRgbSum < 150){
-            //     stateMachine->sendTrigger(EVT_slalom_challenge);
-            //     g_challenge_stepNo = 42;
-            // }
         // 視界が晴れたら左上に前進する
         }else if(g_challenge_stepNo == 50  && (check_sonar(50,255)|| own_abs(curDegree-prevDegree) > 55)){
             printf(",視界が晴れたところで前進する");
@@ -431,14 +419,6 @@ void Observer::operate() {
                 line_over_flg = true;
                 g_challenge_stepNo = 71;
             }
-        // }else if(g_challenge_stepNo == 61 && (locX - prevDisX > 10 || check_sonar(0,5))){
-        //         g_challenge_stepNo = 70;
-        
-        // ３つ目の障害物に接近したら向きを調整する
-        // }else if (g_challenge_stepNo == 70 && (check_sonar(50,255)|| own_abs(curDegree - prevDegree) > 55)){
-        //         printf(",３つ目の障害物に接近したら向きを調整する\n");
-        //         stateMachine->sendTrigger(EVT_slalom_challenge);
-        //         g_challenge_stepNo = 71;
         }else if(g_challenge_stepNo == 71 && check_sonar(0,5)){
                 stateMachine->sendTrigger(EVT_slalom_challenge);
                 g_challenge_stepNo = 80;
@@ -480,7 +460,6 @@ void Observer::operate() {
             g_challenge_stepNo = 120;
         
         // 視界が晴れたら左上に前進する
-//        }else if (g_challenge_stepNo == 120 && (check_sonar(21,255) && own_abs(curDegree - prevDegree) > 51)){
         }else if (g_challenge_stepNo == 120 &&  (check_sonar(21,255) || own_abs(curDegree - prevDegree) > 70)){
             printf(",視界が晴れたら左上に前進する\n");
             stateMachine->sendTrigger(EVT_slalom_challenge);
@@ -527,9 +506,6 @@ void Observer::operate() {
             armMotor->setPWM(-100); //初期化 
             curAngle = 0;//初期化
             prevAngle = 0;//初期化
-            //prevDis = distance; //初期化
-            //prevDisY = locY; // 初期化
-            //prevDegree=getDegree();//初期化
         }
     }
 
@@ -925,7 +901,7 @@ void Observer::unfreeze() {
     frozen = false;
 }
 
-//sano_t 角度累積分を計算
+//角度累積分を計算
 int16_t Observer::getTurnDgree(int16_t prev_x,int16_t x){
 
     int16_t hoge = prev_x-x;

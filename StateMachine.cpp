@@ -134,16 +134,10 @@ void StateMachine::sendTrigger(uint8_t event) {
         case ST_slalom:
             switch (event) {
                 case EVT_slalom_reached:
-                    challengeRunner->rest();
-                    //armMotor->setPWM(-50);
                     challengeRunner->runChallenge();
-                    //armMotor->setPWM(80);
-                    //++challenge_stepNo;
                     break;
                 case EVT_slalom_challenge:
-                    challengeRunner->rest();
                     challengeRunner->runChallenge();
-                    //++challenge_stepNo;
                     break;
                 default:
                     break;
@@ -152,7 +146,6 @@ void StateMachine::sendTrigger(uint8_t event) {
         case ST_block:
             switch (event) {
                 case EVT_block_challenge:
-                    //challengeRunner->rest();
                     challengeRunner->runChallenge();
                     break;
                 case EVT_line_on_p_cntl:
@@ -167,7 +160,6 @@ void StateMachine::sendTrigger(uint8_t event) {
                     break;
                 case EVT_block_area_in:
                     challengeRunner->haveControl();
-                    //challengeRunner->rest();
                     challengeRunner->runChallenge();
                     break;
                 default:

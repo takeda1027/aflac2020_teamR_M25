@@ -24,7 +24,7 @@ public:
     void operate(); // method to invoke from the cyclic handler
     void runChallenge();
     void setPwmLR(int p_L,int p_R,int mode, int proc_count);
-    void rest();
+    void rest(int16_t rest_time);
     int8_t getPwmL();
     int8_t getPwmR();
     ~ChallengeRunner();
