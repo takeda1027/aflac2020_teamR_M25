@@ -330,7 +330,7 @@ void ChallengeRunner::runChallenge() {
             }
             break;
         case 286:
-            setPwmLR(15,15,Mode_speed_constant,1);
+            setPwmLR(18,18,Mode_speed_constant,1);
             break;
         case 290:
             setPwmLR(0,0,Mode_speed_constant,1);

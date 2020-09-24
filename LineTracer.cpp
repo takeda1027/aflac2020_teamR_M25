@@ -98,7 +98,7 @@ float LineTracer::calcPropP() {
   const int bias = 0;
   
   int diff = g_color_brightness - target; 
-  printf("ライントレース2通った g_color_brightness=%d\n",g_color_brightness);
+  //printf("ライントレース2通った g_color_brightness=%d\n",g_color_brightness);
   return (Kp * diff + bias);
 }
 

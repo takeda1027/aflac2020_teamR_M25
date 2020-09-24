@@ -535,12 +535,12 @@ void Observer::operate() {
 
     //ボーナスブロック＆ガレージ専用処理
     if (garage_flg && !slalom_flg){
-       if (g_challenge_stepNo >= 151 && g_challenge_stepNo <= 300){
-            if (++traceCnt && traceCnt > 30) {
-                printf(",garage_flg=%d,slalom_flg=%d,distance=%lf,g_angle=%d,curDegree=%d, sonarDistance=%d, g_challenge_stepNo=%d,r=%d,g=%d,b=%d\n",garage_flg,slalom_flg,distance,g_angle,curDegree, sonarDistance,g_challenge_stepNo,cur_rgb.r,cur_rgb.g,cur_rgb.b);
-                traceCnt = 0;
-            }
-       }
+    //    if (g_challenge_stepNo >= 151 && g_challenge_stepNo <= 300){
+    //         if (++traceCnt && traceCnt > 30) {
+    //             printf(",garage_flg=%d,slalom_flg=%d,distance=%lf,g_angle=%d,curDegree=%d, sonarDistance=%d, g_challenge_stepNo=%d,r=%d,g=%d,b=%d\n",garage_flg,slalom_flg,distance,g_angle,curDegree, sonarDistance,g_challenge_stepNo,cur_rgb.r,cur_rgb.g,cur_rgb.b);
+    //             traceCnt = 0;
+    //         }
+    //    }
 
         //ガレージON後、距離が一部距離が残るようであるため、距離がリセットされたことを確認
         if(g_challenge_stepNo == 150 && distance < 100 && distance > 1){
@@ -642,7 +642,7 @@ void Observer::operate() {
             //captain->decide(EVT_step); // 一旦停止
             //captain->decide(EVT_turnLeft_m15p50); // 回転開始
 
-        }else if(g_challenge_stepNo==231 && prevDegree - getAzimuth() + cntDegree > 67 + 25){
+        }else if(g_challenge_stepNo==231 && prevDegree - getAzimuth() + cntDegree > 67 + 26){
             prevDis = distance;
             stateMachine->sendTrigger(EVT_block_challenge); //231
             //captain->decide(EVT_go_30); // 物体に接近
@@ -721,7 +721,7 @@ void Observer::operate() {
             int x= getAzimuth();
             cntDegree += getTurnDgree(prevDegree,x);
             prevDegree = x;
-            printf("cntDegree=%d,prevDegree=%d,",cntDegree,prevDegree);
+            //printf("cntDegree=%d,prevDegree=%d,",cntDegree,prevDegree);
         //前方に何もない状況になったら進行
         }else if(g_challenge_stepNo == 262){
             if(check_sonar(255,255)){
@@ -734,13 +734,13 @@ void Observer::operate() {
             cntDegree += getTurnDgree(prevDegree,x);
             prevDegree = x;
 
-            if(cntDegree >= 3){ //255を発見してから何度曲がるかを調整
+            if(cntDegree >= 5){ //255を発見してから何度曲がるかを調整
                 stateMachine->sendTrigger(EVT_block_challenge); //263
                 //captain->decide(EVT_go_b3); // ガレージラインへ
                 g_challenge_stepNo = 270;
                 prevDis = distance;
             }
-            printf("prevDegree=%d,",prevDegree);
+            //printf("prevDegree=%d,",prevDegree);
         }
 
 
@@ -780,9 +780,9 @@ void Observer::operate() {
             int x = getAzimuth();
             cntDegree += getTurnDgree(prevDegree,x);
             prevDegree=x;
-            printf("cntDegree=%d,",cntDegree);
+            //printf("cntDegree=%d,",cntDegree);
 
-            if(cntDegree > 20){
+            if(cntDegree > 27){
                 stateMachine->sendTrigger(EVT_block_challenge); //286
                 //captain->decide(EVT_go_slowly);
                 g_challenge_stepNo = 290;
