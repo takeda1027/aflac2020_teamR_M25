@@ -364,18 +364,18 @@ void Observer::operate() {
                 g_challenge_stepNo = 20;
             }        
 
-        }else if(g_challenge_stepNo == 20 && curDegree >= -45){
+        }else if(g_challenge_stepNo == 20 && curDegree >= -57){
             //その場で左回転
             g_challenge_stepNo = 21;
             stateMachine->sendTrigger(EVT_slalom_challenge);//21
 
 
-        }else if(g_challenge_stepNo == 20 && curDegree <= -45){
+        }else if(g_challenge_stepNo == 20 && curDegree <= -57){
             //その場で右回転
             g_challenge_stepNo = 22;
             stateMachine->sendTrigger(EVT_slalom_challenge);//22
 
-        }else if((g_challenge_stepNo == 21 && curDegree < -45) || (g_challenge_stepNo == 22 && curDegree > -45)){
+        }else if((g_challenge_stepNo == 21 && curDegree <= -57) || (g_challenge_stepNo == 22 && curDegree >= -57)){
             //角度が一定角度になったら、停止、直進
                 g_challenge_stepNo = 23;
                 stateMachine->sendTrigger(EVT_slalom_challenge); //23
@@ -421,7 +421,7 @@ void Observer::operate() {
             if (curRgbSum < 100) {
                 prevRgbSum = curRgbSum;
             }
-            if(prevRgbSum < 100 && curRgbSum > 120){
+            if(prevRgbSum < 100 && curRgbSum > 125){
                 printf(",黒ラインを超えたら向きを調整し障害物に接近する\n");
                 stateMachine->sendTrigger(EVT_slalom_challenge);
                 //prevDis=distance;
@@ -628,6 +628,7 @@ void Observer::operate() {
                 stateMachine->sendTrigger(EVT_line_on_pid_cntl); //212
                 //captain->decide(EVT_go_line_t); // 物体に接近
                 g_challenge_stepNo = 250;
+        
         //黒ラインからの黄色を見つけたらブロック方向へターン
         }else if(g_challenge_stepNo ==220 && cur_rgb.r + cur_rgb.g - cur_rgb.b >= 160 &&  cur_rgb.r - cur_rgb.g <= 30){
             int x = getAzimuth();
@@ -647,12 +648,14 @@ void Observer::operate() {
             //captain->decide(EVT_go_30); // 物体に接近
             g_challenge_stepNo = 232;
             printf("ここまで黄色エリア１ cntDegree=%d,azi=%d,sa=%d,gosa=%d\n",prevDegree,getAzimuth(),prevDegree -getAzimuth(),cntDegree);
-        //ブロックの升目一つ隣の黄色ポイントで直角ターン
+        
+        
         }else if(g_challenge_stepNo == 232 && distance - prevDis > 180 && cur_rgb.r + cur_rgb.g - cur_rgb.b <= 130 ){
             printf("ここまで黄色エリア２\n");
             stateMachine->sendTrigger(EVT_line_on_pid_cntl); //232
             g_challenge_stepNo = 250;
             //captain->decide(EVT_go_line_t); // 物体に接近
+        
         //赤を見つけたら黒を見つけるまで直進、その後ライントレース
         }else if(g_challenge_stepNo == 220 && cur_rgb.r - cur_rgb.b >= 40 && cur_rgb.g < 60 && cur_rgb.r - cur_rgb.g > 30){
             g_challenge_stepNo = 240;
@@ -660,11 +663,13 @@ void Observer::operate() {
             stateMachine->sendTrigger(EVT_block_area_in); //240
             g_challenge_stepNo = 241;
             //captain->decide(EVT_go_30); // 物体に接近
+        
         //赤を離脱するために以下の分岐にあるカラーを順番にたどる
         }else if( cur_rgb.r - cur_rgb.b < 20 && g_challenge_stepNo == 241){
             g_challenge_stepNo = 242;
         }else if( cur_rgb.r - cur_rgb.b >=40 && g_challenge_stepNo == 242){
             g_challenge_stepNo = 243;
+        
         //赤を通過時、大きくラインを外れたら、カーブして戻る
         }else if(g_challenge_stepNo == 243 && cur_rgb.r + cur_rgb.g + cur_rgb.b > 300){
             g_challenge_stepNo = 244;
@@ -675,12 +680,14 @@ void Observer::operate() {
             stateMachine->sendTrigger(EVT_line_on_pid_cntl); //245
             //captain->decide(EVT_go_line_t); // 黄色に向かう
             g_challenge_stepNo = 220;
+
         //ラインを外れていなければ、黒のライントレースへ
         }else if(g_challenge_stepNo == 243 && cur_rgb.r + cur_rgb.g + cur_rgb.b <= 100){
             g_challenge_stepNo = 246;
             stateMachine->sendTrigger(EVT_line_on_pid_cntl); //246 
             //captain->decide(EVT_go_line_t); // 黄色に接近
             g_challenge_stepNo = 220;
+        
         }else if(g_challenge_stepNo==250){                
             //ブロックに直進、ブロックの黄色を見つけたら
             if(cur_rgb.r + cur_rgb.g - cur_rgb.b >= 160){
@@ -775,7 +782,7 @@ void Observer::operate() {
             prevDegree=x;
             printf("cntDegree=%d,",cntDegree);
 
-            if(cntDegree > 10){
+            if(cntDegree > 20){
                 stateMachine->sendTrigger(EVT_block_challenge); //286
                 //captain->decide(EVT_go_slowly);
                 g_challenge_stepNo = 290;
