@@ -109,7 +109,7 @@ void ChallengeRunner::runChallenge() {
             break;
         case 10:
             rest(300);
-            setPwmLR(3,15,Mode_speed_constant,1);
+            setPwmLR(4,15,Mode_speed_constant,1);
             break;
         case 11:
             rest(300);
@@ -214,7 +214,7 @@ void ChallengeRunner::runChallenge() {
             pwm_R = _EDGE * -15;
             setPwmLR(pwm_L,pwm_R,Mode_speed_constant,1);
             break;
-        case 140:
+        case 141:
             if (_LEFT == 1){
                 setPwmLR(26,25,Mode_speed_constant,1);
             }else{
