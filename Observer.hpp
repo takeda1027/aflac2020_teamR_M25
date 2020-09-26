@@ -35,7 +35,7 @@ private:
     double distance, azimuth, locX, locY,prevDis,prevDisX,prevDisY;
     double integD, integDL, integDR; // temp
     int8_t process_count,roots_no;
-    int16_t traceCnt, prevGS, curRgbSum, prevRgbSum, curAngle, prevAngle, curDegree, prevDegree,cntDegree,turnDegree;
+    int16_t traceCnt, prevGS, curRgbSum, prevRgbSum, curAngle, prevAngle, curDegree180, prevDegree180,curDegree360, prevDegree360,cntDegree,turnDegree;
     int32_t prevAngL, prevAngR, notifyDistance, gsDiff, timeDiff, sonarDistance;
     uint64_t curTime, prevTime;
     bool touch_flag, sonar_flag, backButton_flag, lost_flag, frozen, blue_flag, blue2_flg, slalom_flg, line_over_flg, move_back_flg,garage_flg;
