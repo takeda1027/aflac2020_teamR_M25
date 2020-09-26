@@ -357,19 +357,19 @@ void Observer::operate() {
                 g_challenge_stepNo = 20;
             }        
 
-        }else if(g_challenge_stepNo == 20 && curDegree >= -57){
+        }else if(g_challenge_stepNo == 20 && curDegree >= -45){
             //その場で左回転
             g_challenge_stepNo = 21;
             stateMachine->sendTrigger(EVT_slalom_challenge);//21
             printf("上から回転\n");
 
-        }else if(g_challenge_stepNo == 20 && curDegree < -57){
+        }else if(g_challenge_stepNo == 20 && curDegree < -45){
             //その場で右回転
             g_challenge_stepNo = 22;
             stateMachine->sendTrigger(EVT_slalom_challenge);//22
             printf("下から回転\n");
 
-        }else if((g_challenge_stepNo == 21 && curDegree <= -57) || (g_challenge_stepNo == 22 && curDegree >= -60)){
+        }else if((g_challenge_stepNo == 21 && curDegree <= -45) || (g_challenge_stepNo == 22 && curDegree >= -52)){
             //角度が一定角度になったら、停止、直進
                 g_challenge_stepNo = 23;
                 stateMachine->sendTrigger(EVT_slalom_challenge); //23
@@ -450,7 +450,7 @@ void Observer::operate() {
             stateMachine->sendTrigger(EVT_slalom_challenge);
             g_challenge_stepNo = 110;
         // ４つ目の障害物に接近したら向きを変える
-        }else if (g_challenge_stepNo == 110 && (check_sonar(0,5) || locY-prevDisY >= 1051 )){
+        }else if (g_challenge_stepNo == 110 && (check_sonar(0,5) || locY-prevDisY >= 1050 )){
             printf(",４つ目の障害物に接近したら向きを変えるlocY=%lf,prevDisY=%lf,curDegree=%d\n",locY,prevDisY,curDegree);
             stateMachine->sendTrigger(EVT_slalom_challenge);
             g_challenge_stepNo = 111;
@@ -621,7 +621,7 @@ void Observer::operate() {
                 g_challenge_stepNo = 250;
         
         //黒ラインからの黄色を見つけたらブロック方向へターン
-        }else if(g_challenge_stepNo ==220 && cur_rgb.r + cur_rgb.g - cur_rgb.b >= 160 &&  cur_rgb.r + cur_rgb.g - cur_rgb.b <= 150){
+        }else if(g_challenge_stepNo ==220 && cur_rgb.r + cur_rgb.g - cur_rgb.b >= 160 &&  cur_rgb.r - cur_rgb.g >= 11){
             int x = getAzimuth();
             printf("ここのprevDegree=%d,azi=%d,sa=%d\n",prevDegree,x,prevDegree-x);
             //prevDegreeは黒ライン侵入時、回転後のもの
@@ -681,7 +681,7 @@ void Observer::operate() {
         
         }else if(g_challenge_stepNo==250){                
             //ブロックに直進、ブロックの黄色を見つけたら
-            if(cur_rgb.r + cur_rgb.g - cur_rgb.b >= 160){
+            if(cur_rgb.r + cur_rgb.g - cur_rgb.b >= 150){
                     printf("ブロックGETしてほしい\n");                 
                     g_challenge_stepNo = 260;
             }
