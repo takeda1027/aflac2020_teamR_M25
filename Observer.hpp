@@ -22,6 +22,10 @@ const double hn[FIR_ORDER+1] = { -1.247414986406201e-18, -1.270350182429102e-02,
 // moving average parameter
 const int MA_CAP = 10;
 
+// Calculating average difference of Right/Left motor at initial straight parameters
+const int AVERAGE_START =  350;
+const int AVERAGE_END   = 1500;
+
 class Observer {
 private:
     Motor*          leftMotor;
@@ -32,11 +36,11 @@ private:
     SonarSensor*    sonarSensor;
     GyroSensor*     gyroSensor;
     ColorSensor*    colorSensor;
-    double distance, azimuth, locX, locY,prevDis,prevDisX,prevDisY;
-    double integD, integDL, integDR; // temp
+    double distance, azimuth, locX, locY, aveDiffAng, deltaDiff, prevDeltaDiff, prevDis, prevDisX, prevDisY;
+    double integD, integDL, integDR;
     int8_t process_count,roots_no;
-    int16_t traceCnt, prevGS, curRgbSum, prevRgbSum, curAngle, prevAngle, curDegree, prevDegree,cntDegree,turnDegree;
-    int32_t prevAngL, prevAngR, notifyDistance, gsDiff, timeDiff, sonarDistance;
+    int16_t traceCnt, prevGS, curRgbSum, prevRgbSum, curAngle, prevAngle, curDegree180, prevDegree180,curDegree360, prevDegree360,cntDegree,turnDegree;
+    int32_t prevAngL, prevAngR, notifyDistance, gsDiff, timeDiff, sonarDistance, diffAng, sumDiffAng, countAng;
     uint64_t curTime, prevTime;
     bool touch_flag, sonar_flag, backButton_flag, lost_flag, frozen, blue_flag, blue2_flg, slalom_flg, line_over_flg, move_back_flg,garage_flg;
 
